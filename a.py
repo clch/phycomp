@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import serial
 import time
+import math
 
 port = '/dev/cu.usbmodem14201'
 
@@ -14,6 +15,7 @@ ret, last_frame = cap.read()
 if last_frame is None:
     exit()
 
+count = 0
 while(cap.isOpened()):
     ret, frame = cap.read()
 
@@ -27,17 +29,31 @@ while(cap.isOpened()):
 
     (y_arr, x_arr) = np.where(gray > 20)
 
-    x = int(np.sum(x_arr) / x_arr.size)
-    y = int(np.sum(y_arr) / y_arr.size)
+    # New Code
+    p = 100
+    fx, fy = 0, 0
+    if len(x_arr) < 3000 and len(y_arr) < 3000:
+        p = 30
+        fx = math.sin(count) * 50 + 50
+        fy = math.sin(2*count) * 50 + 50
+        count += 0.05
+    else:
+        x = int(np.sum(x_arr) / x_arr.size)
+        y = int(np.sum(y_arr) / y_arr.size)
 
-    fx = int(x / x_len * 100)
-    fy = int(y / y_len * 100)
+        fx = int(x / x_len * 100)
+        fy = int(y / y_len * 100)
 
-    fx = max(20, min(80, fx))
-    fy = max(30, min(70, fy))
+        fx = max(20, min(80, fx))
+        fy = max(30, min(70, fy))
+        if len(x_arr) < 20000:
+            p = 30 + len(x_arr) / 5000
+        print(len(x_arr), len(y_arr))
+
 
     print(fx, fy)
-    arduino.write((str(fx) + ',' + str(fy) + '\n').encode('utf-8'))
+
+    arduino.write((str(fx) + ',' + str(fy) + ',' + str(p) + '\n').encode('utf-8'))
 
     cv2.imshow('diff', gray)
 
