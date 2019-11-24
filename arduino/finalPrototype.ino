@@ -91,8 +91,8 @@ uint32_t smoothing(int i) {
   uint8_t tarR = (target >> 16) & 0xFF;
   uint8_t tarG = (target >> 8) & 0xFF;
   uint8_t tarB = target & 0xFF;
-  if (tarR > currR) currR += change; else if (tarR > currR) currR -= change;
-  if (tarG > currG) currG += change; else if (tarG > currG) currG -= change;
-  if (tarB > currB) currB += change; else if (tarB > currB) currB -= change;  
+  if (tarR > currR) currR += change; else if (tarR < currR) currR -= change;
+  if (tarG > currG) currG += change; else if (tarG < currG) currG -= change;
+  if (tarB > currB) currB += change; else if (tarB < currB) currB -= change;  
   return strip.Color(currR, currG, currB);
 }
